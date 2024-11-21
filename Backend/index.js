@@ -42,6 +42,17 @@ app.get('/api/posts', async (req, res) => {
   }
 });
 
+// Get Post
+app.get('/api/posts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getPost = await Post.findById(id);
+    res.status(200).json(getPost);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Update Post
 app.put('/api/posts/:id', async (req, res) => {
   try {

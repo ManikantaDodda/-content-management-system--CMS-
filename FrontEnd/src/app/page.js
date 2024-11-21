@@ -1,77 +1,61 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Editor from "../components/Editor";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [editingPost, setEditingPost] = useState(null);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
   const fetchPosts = async () => {
-    const { data } = await axios.get(`${apiUrl}api/posts`);
-    setPosts(data);
+    try {
+      const { data } = await axios.get(`${apiUrl}api/posts`);
+      setPosts(data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   };
 
-  const handleSave = async () => {
-    const payload = { title, content };
-    if (editingPost) {
-      await axios.put(`${apiUrl}api/posts/${editingPost._id}`, payload);
-    } else {
-      await axios.post(`${apiUrl}api/posts`, payload);
-    }
-    setTitle("");
-    setContent("");
-    setEditingPost(null);
-    fetchPosts();
+  const handleNavigate = () => {
+    router.push("/create_post");
   };
 
   const handleEdit = (post) => {
-    setTitle(post.title);
-    setContent(post.content);
-    setEditingPost(post);
+    router.push(`/update_post/${post._id}`);
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`${apiUrl}/api/posts/${id}`);
-    fetchPosts();
+    try {
+      await axios.delete(`${apiUrl}/api/posts/${id}`);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
   };
 
   return (
-    <div className="h-screen bg-gray-100 w-100 py-10 px-5">
-      <div className="max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-500">CMS Dashboard</h1>
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">{editingPost ? "Edit Post" : "Create a Post"}</h2>
-          <input
-            type="text"
-            placeholder="Enter Title"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Editor value={content} onChange={setContent} />
+    <div className="w-full">
+      <div className="max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-center text-blue-500 mb-6">CMS Dashboard</h1>
+        <div className="flex justify-end mb-6">
           <button
-            onClick={handleSave}
-            className="mt-4 w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition"
+            onClick={handleNavigate}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition"
           >
-            {editingPost ? "Update Post" : "Create Post"}
+            Create New Post
           </button>
         </div>
-
         <div>
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">Posts</h2>
           {posts.length === 0 ? (
-            <p className="text-gray-500">No posts available. Start by creating one!</p>
+            <p className="text-gray-500 text-center">No posts available. Start by creating one!</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post) => (
                 <div
                   key={post._id}
@@ -82,16 +66,16 @@ export default function Home() {
                     className="text-gray-700 text-sm mb-4"
                     dangerouslySetInnerHTML={{ __html: post.content }}
                   />
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <button
                       onClick={() => handleEdit(post)}
-                      className="text-blue-500 hover:underline"
+                      className="text-blue-500 hover:underline font-medium"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(post._id)}
-                      className="text-red-500 hover:underline"
+                      className="text-red-500 hover:underline font-medium"
                     >
                       Delete
                     </button>
