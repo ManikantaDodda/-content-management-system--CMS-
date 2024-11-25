@@ -48,7 +48,7 @@ export default function Home() {
               {posts.map((post) => (
                 <div
                   key={post._id}
-                  className="p-6 border border-gray-200 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition flex flex-col justify-between h-92"
+                  className="p-6 border border-gray-200 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition flex flex-col justify-between h-82"
                 >
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h3>
                   <h2 className="text-sm text-gray-500 mb-2">Post By: {post.user_id?.name}</h2>
@@ -60,7 +60,7 @@ export default function Home() {
                     onClick={() => router.push(`/post/${post._id}`)}
                     className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition"
                   >
-                    View Post
+                    Preview Post
                   </button>
                 </div>
               ))}

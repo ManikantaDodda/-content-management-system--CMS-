@@ -2,8 +2,7 @@ import Post from "../models/Post.js";
 const createNewPost = async (req, res) => {
     try {
       const user_id = req.user._id;
-      const { title, content } = req.body;
-      const slug = title.toLowerCase().replace(/ /g, '-');
+      const { title, content, slug } = req.body;
       const post = new Post({ title, slug, content, user_id });
       await post.save();
       res.status(201).json(post);
@@ -55,7 +54,7 @@ const createNewPost = async (req, res) => {
 const getPostByID = async (req, res) => {
     try {
       const { id } = req.params;
-      const getPost = await Post.findById(id);
+      const getPost = await Post.findById(id).populate("user_id", "name");
       res.status(200).json(getPost);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -65,8 +64,7 @@ const getPostByID = async (req, res) => {
 const updatePostByID = async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, content } = req.body;
-      const slug = title.toLowerCase().replace(/ /g, '-');
+      const { title, content, slug } = req.body;
       const updatedPost = await Post.findByIdAndUpdate(
         id,
         { title, slug, content },

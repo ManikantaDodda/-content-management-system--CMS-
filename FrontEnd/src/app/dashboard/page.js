@@ -31,7 +31,7 @@ export default function Home() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${apiUrl}/api/posts/${id}`);
+      await axiosInstance.delete(`${apiUrl}api/posts/${id}`);
       fetchPosts();
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -57,9 +57,9 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post) => (
                 <div
-                  key={post._id}
-                  className="p-6 border border-gray-200 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition"
-                >
+                key={post._id}
+                className="p-6 border border-gray-200 rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition flex flex-col justify-between h-82"
+              >
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h3>
                   <div
                     className="text-gray-700 text-sm mb-4"
@@ -71,6 +71,12 @@ export default function Home() {
                       className="text-blue-500 hover:underline font-medium"
                     >
                       Edit
+                    </button>
+                    <button
+                     onClick={() => router.push(`/post/${post._id}`)}
+                      className="text-blue-500 hover:underline font-medium"
+                    >
+                      Preview Post
                     </button>
                     <button
                       onClick={() => handleDelete(post._id)}
