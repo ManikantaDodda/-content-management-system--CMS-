@@ -2,8 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import Post from './models/Post.js';
 import dotenv from 'dotenv';
+import Authenticate from "./service/bcryptService.js";
+import { login, registration } from './controller/userController.js';
+import {createNewPost, getAllPosts, getPostByID, getAllPostsByUser, updatePostByID, deletePostByID} from './controller/postController.js';
 
 const app = express();
 
@@ -19,67 +21,24 @@ mongoose
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
+
+app.post('/api/register', registration);
+app.post('/api/login', login);
 // Create Post
-app.post('/api/posts', async (req, res) => {
-  try {
-    const { title, content } = req.body;
-    const slug = title.toLowerCase().replace(/ /g, '-');
-    const post = new Post({ title, slug, content });
-    await post.save();
-    res.status(201).json(post);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+app.post('/api/posts', Authenticate.isAuthenticatedUser, createNewPost);
 
 // Read All Posts
-app.get('/api/posts', async (req, res) => {
-  try {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.status(200).json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.get('/api/posts', getAllPosts);
+app.get('/api/user-posts',Authenticate.isAuthenticatedUser, getAllPostsByUser);
 
 // Get Post
-app.get('/api/posts/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const getPost = await Post.findById(id);
-    res.status(200).json(getPost);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+app.get('/api/posts/:id', getPostByID);
 
 // Update Post
-app.put('/api/posts/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, content } = req.body;
-    const slug = title.toLowerCase().replace(/ /g, '-');
-    const updatedPost = await Post.findByIdAndUpdate(
-      id,
-      { title, slug, content },
-      { new: true }
-    );
-    res.status(200).json(updatedPost);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+app.put('/api/posts/:id', updatePostByID);
 
 // Delete Post
-app.delete('/api/posts/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Post.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Post deleted successfully!' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.delete('/api/posts/:id', deletePostByID);
 
 // Start Server
 const PORT = 5000;

@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Editor from "@/components/Editor";
 import { useRouter } from "next/navigation";
-
+import axiosInstance from "@/utils/config";
 const CreatePostComponent = ({ params }) => {
   const router = useRouter();
   const [editingPost, setEditingPost] = useState(null);
@@ -23,9 +22,9 @@ const CreatePostComponent = ({ params }) => {
     try {
       const payload = { title, content };
       if (editingPost) {
-        await axios.put(`${apiUrl}api/posts/${editingPost._id}`, payload);
+        await axiosInstance.put(`api/posts/${editingPost._id}`, payload);
       } else {
-        await axios.post(`${apiUrl}api/posts`, payload);
+        await axiosInstance.post(`api/posts`, payload);
       }
       setTitle("");
       setContent("");
@@ -38,9 +37,13 @@ const CreatePostComponent = ({ params }) => {
     }
   };
 
+  useEffect(()=>{
+      document.getElementById("previewshow").innerHTML = content;
+  },[content]);
+
   return (
-    <div className="w-full h-full px-4 py-6 md:px-16 md:py-10 bg-gray-100">
-      <div className="max-w-4xl mx-auto bg-white shadow-md rounded-md p-6">
+    <div className="flex flex-col md:flex-row gap-6 p-8">
+      <div className="w-full md:w-1/2 bg-white p-4 border border-gray-300 rounded-md shadow">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">
           {editingPost ? "Edit Post" : "Create a New Post"}
         </h2>
@@ -59,7 +62,14 @@ const CreatePostComponent = ({ params }) => {
           {editingPost ? "Update Post" : "Create Post"}
         </button>
       </div>
+      <div className="w-full md:w-1/2 bg-gray-50 p-4 border border-gray-300 rounded-md shadow">
+        <h3 className="text-lg font-semibold mb-4 text-gray-700">Preview</h3>
+        <div
+          className="prose max-w-none" id="previewshow"
+        />
+      </div>
     </div>
+  
   );
 };
 
