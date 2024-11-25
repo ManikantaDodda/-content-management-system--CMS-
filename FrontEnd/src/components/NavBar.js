@@ -7,10 +7,17 @@ const NavBar = () => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Simulate user authentication status
-  useEffect(() => {
+  const loadUser = () => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    setIsLoggedIn(!!token)
+  }
+  useEffect(() => {
+    const handleAuthChange = () => loadUser();
+    window.addEventListener("authChange", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("authChange", handleAuthChange);
+    };
   }, []);
 
   const handleLogout = () => {

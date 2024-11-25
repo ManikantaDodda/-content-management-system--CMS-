@@ -42,6 +42,7 @@ export default function Login() {
           localStorage.setItem("session", JSON.stringify(decoded));
           toast.success("Login Successful", { position: "top-right" });
           setFormData(initialFormData);
+          window.dispatchEvent(new Event("authChange"));
           router.push("/dashboard");
         }
       } else {
